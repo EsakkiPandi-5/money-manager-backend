@@ -7,31 +7,49 @@ dotenv.config();
 
 const app = express();
 
-// Middleware (CORS MUST come before routes)
+/* =========================
+   CORS CONFIG (MUST BE FIRST)
+========================= */
 app.use(cors({
-  origin: [
-    "https://moneymanagerfrontend5.netlify.app"
-  ],
+  origin: "*", // allow all origins (hackathon-safe)
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
+// Allow preflight requests
+app.options("*", cors());
+
+/* =========================
+   BODY PARSER
+========================= */
 app.use(express.json());
 
-// Connect to MongoDB
+/* =========================
+   DB CONNECTION
+========================= */
 connectDB();
 
-// Routes
+/* =========================
+   ROUTES (NO GLOBAL AUTH)
+========================= */
 app.use('/api/transactions', require('./routes/transactions'));
 app.use('/api/accounts', require('./routes/accounts'));
 
-// Health check
+/* =========================
+   HEALTH CHECK
+========================= */
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Money Manager API is running' });
+  res.status(200).json({
+    status: 'OK',
+    message: 'Money Manager API is running',
+  });
 });
 
+/* =========================
+   SERVER START
+========================= */
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
